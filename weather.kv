@@ -71,7 +71,9 @@ WeatherRoot:
             text: "Temperature: {}".format(root.temp)
         Label:
             color: 0,0,0,1
-            text: "Condition: {}".format(root.conditions)
+            text: root.conditions
+    AsyncImage:
+        source: root.conditions_image
     BoxLayout:
         Label:
             color: 1,0,0,1

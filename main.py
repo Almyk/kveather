@@ -45,6 +45,7 @@ class CurrentWeather(BoxLayout):
     temp = NumericProperty()
     temp_min = NumericProperty()
     temp_max = NumericProperty()
+    conditions_image = StringProperty()
 
     def update_weather(self):
         weather_template = \
@@ -54,6 +55,8 @@ class CurrentWeather(BoxLayout):
 
     def weather_retrieved(self, request, data):
         self.conditions = data['weather'][0]['description']
+        self.conditions_image = "http://openweathermap.org/img/w/{}.png".format(
+                data['weather'][0]['icon'])
         self.temp = data['main']['temp']
         self.temp_min = data['main']['temp_min']
         self.temp_max = data['main']['temp_max']
