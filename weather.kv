@@ -3,6 +3,8 @@
 #: import hex kivy.utils.get_color_from_hex
 
 WeatherRoot:
+
+<WeatherRoot>:
     canvas.before:
         Color:
             rgba: hex('#95a5a6')
@@ -10,7 +12,7 @@ WeatherRoot:
             pos: self.pos
             size: self.size
 
-    AddLocationForm
+    #AddLocationForm
 
 <AddLocationForm>:
     orientation: "vertical"
@@ -38,13 +40,34 @@ WeatherRoot:
             ListAdapter(
             data=[],
             cls=main.LocationButton,
-            args_converter=root.args_converter)
-        item_strings: []
+            args_converter=main.locations_args_converter)
     Button:
         height: "40dp"
         size_hint_y: None
         text: "Cancel"
-        on_press: app.root.show_current_weather(None)
+        #on_press: app.root.show_current_weather(None)
+        on_press: app.root.show_locations()
+
+<Locations@BoxLayout>:
+    orientation: "vertical"
+    locations_list: locations_list
+    ListView:
+        id: locations_list
+        adapter:
+            ListAdapter(
+            data=[],
+            cls=main.LocationButton,
+            args_converter=main.locations_args_converter)
+    BoxLayout:
+        orientation: "horizontal"
+        size_hint_y: None
+        height: "40dp"
+        Button:
+            text: "Add Location"
+            on_press: app.root.show_add_location_form()
+        Button:
+            text: "Settings"
+            on_press: app.open_settings()
 
 <LocationButton>:
     text: "{} ({})".format(self.location[0], self.location[1])
@@ -73,6 +96,8 @@ WeatherRoot:
             color: 0,0,0,1
             text: root.conditions
     AsyncImage:
+        allow_stretch: True
+        keep_ratio: True
         source: root.conditions_image
     BoxLayout:
         Label:
@@ -87,6 +112,6 @@ WeatherRoot:
         height: "40dp"
         Button:
             text: "Add Location"
-            on_press: app.root.show_add_location_form()
+            on_press: app.root.show_locations()
         Button:
             text: "Forecast"
