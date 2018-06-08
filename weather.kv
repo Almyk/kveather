@@ -15,14 +15,35 @@ WeatherRoot:
         Rectangle:
             pos: self.pos
             size: self.size
-    Carousel:
-        id: carousel
-        Locations:
-            id: locations
-        CurrentWeather:
-            id: current_weather
-        Forecast:
-            id: forecast
+    BoxLayout:
+        orientation: "vertical"
+        ActionBar:
+            ActionView:
+                use_separator: True
+                ActionPrevious:
+                    title: "Kveather"
+                    with_previous: False
+                ActionOverflow:
+                    ActionButton:
+                        text: "Add Location"
+                        on_press: app.root.show_add_location_form()
+                    ActionButton:
+                        text: "Settings"
+                        on_press: app.open_settings()
+                ActionButton:
+                    text: "Locations"
+                    on_press: app.root.carousel.load_slide(app.root.locations)
+                ActionButton:
+                    text: "Forecast"
+                    on_press: app.root.carousel.load_slide(app.root.forecast)
+        Carousel:
+            id: carousel
+            Locations:
+                id: locations
+            CurrentWeather:
+                id: current_weather
+            Forecast:
+                id: forecast
 
     #AddLocationForm
 
@@ -71,16 +92,6 @@ WeatherRoot:
             data=[],
             cls=main.LocationButton,
             args_converter=main.locations_args_converter)
-    BoxLayout:
-        orientation: "horizontal"
-        size_hint_y: None
-        height: "40dp"
-        Button:
-            text: "Add Location"
-            on_press: app.root.show_add_location_form()
-        Button:
-            text: "Settings"
-            on_press: app.open_settings()
 
 <LocationButton>:
     text: "{} ({})".format(self.location[0], self.location[1])
@@ -119,16 +130,7 @@ WeatherRoot:
         Label:
             color: 0,0,1,1
             text: "Min Temp: {}".format(root.temp_min)
-    BoxLayout:
-        orientation: "horizontal"
-        size_hint_y: None
-        height: "40dp"
-        Button:
-            text: "Location List"
-            on_press: app.root.carousel.load_slide(app.root.locations)
-        Button:
-            text: "Forecast"
-            on_press: app.root.carousel.load_slide(app.root.forecast)
+
 <Forecast>:
     orientation: "vertical"
     container: entry_box
@@ -144,12 +146,6 @@ WeatherRoot:
     BoxLayout:
         orientation: "vertical"
         id: entry_box
-    Button:
-        size_hint_y: None
-        height: "40dp"
-        font_size: "20dp"
-        text: "Back to current weather"
-        on_press: app.root.carousel.load_slide(app.root.current_weather)
 
 <ForecastLabel@BoxLayout>:
     orientation: "horizontal"
