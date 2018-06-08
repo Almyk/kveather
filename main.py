@@ -9,6 +9,8 @@ from kivy.factory import Factory
 from kivy.storage.jsonstore import JsonStore
 import datetime
 
+from gesture_box import GestureBox
+
 f = open('api.key', 'r')
 key = f.readline().strip()
 f.close()
@@ -43,7 +45,7 @@ class LocationButton(ListItemButton):
     location = ListProperty()
     col = StringProperty()
 
-class CurrentWeather(BoxLayout):
+class CurrentWeather(GestureBox):
     location = ListProperty(['Seoul', 'KR'])
     conditions = StringProperty()
     conditions_image = StringProperty()
@@ -68,7 +70,7 @@ class CurrentWeather(BoxLayout):
         self.temp_max = data['main']['temp_max']
 
 
-class Forecast(BoxLayout):
+class Forecast(GestureBox):
     location = ListProperty(['Seoul', 'KR'])
     container = ObjectProperty()
 
