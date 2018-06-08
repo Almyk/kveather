@@ -2,11 +2,13 @@
 
 from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.modalview import ModalView
 from kivy.properties import ObjectProperty, ListProperty, StringProperty, NumericProperty
 from kivy.network.urlrequest import UrlRequest
 from kivy.uix.listview import ListItemButton
 from kivy.factory import Factory
 from kivy.storage.jsonstore import JsonStore
+from kivy.clock import Clock
 import datetime
 
 f = open('api.key', 'r')
@@ -20,7 +22,7 @@ def locations_args_converter(index, data_item):
     city, country = data_item
     return {'location': (city, country), 'col': col}
 
-class AddLocationForm(BoxLayout):
+class AddLocationForm(ModalView):
     search_input = ObjectProperty()
     search_results = ObjectProperty()
 
@@ -92,7 +94,7 @@ class Forecast(BoxLayout):
             cnt += 1
             label = Factory.ForecastLabel()
             label.date = datetime.datetime.fromtimestamp(day['dt']).strftime(
-                    "%a %b %d")
+                    "%a %d %b")
             label.time = datetime.datetime.fromtimestamp(day['dt']).strftime(
                     "%H:%M:%S")
             label.description = day['weather'][0]['description']
@@ -113,61 +115,33 @@ class WeatherRoot(BoxLayout):
     def __init__(self, **kwargs):
         super(WeatherRoot, self).__init__(**kwargs)
         self.store = JsonStore("weather_store.json")
-        self.add_location_form = Factory.AddLocationForm()
-        try:
-            current_location = self.store.get("locations")['current_location']
+        if self.store.exists('locations'):
+            locations = self.store.get('locations')
+            self.locations.locations_list.adapter.data.extend(locations['locations'])
+            current_location = locations["current_location"]
             self.show_current_weather(current_location)
-        except:
-            self.show_add_location_form()
+        else:
+            Clock.schedule_once(lambda dt: self.show_add_location_form())
 
-    def show_current_weather(self, location=None):
-        self.clear_widgets()
+    def show_current_weather(self, location):
+        if location not in self.locations.locations_list.adapter.data:
+            self.locations.locations_list.adapter.data.append(location)
+            self.store.put("locations",
+                    locations=list(self.locations.locations_list.adapter.data),
+                    current_location=location)
 
-        if self.current_weather is None:
-            self.current_weather = CurrentWeather()
-        if self.locations is None:
-            self.locations = Factory.Locations()
-            if(self.store.exists('locations')):
-                locations = self.store.get("locations")['locations']
-                self.locations.locations_list.adapter.data.extend(locations)
-
-        if location is not None:
-            self.current_weather.location = location
-            if location not in self.locations.locations_list.adapter.data:
-                self.locations.locations_list.adapter.data.append(location)
-                #self.locations.locations_list._trigger_reset_populate()
-                self.store.put("locations",
-                        locations=list(self.locations.locations_list.adapter.data),
-                        current_location=location)
-
+        self.current_weather.location = location
+        self.forecast.location = location
         self.current_weather.update_weather()
-        self.add_widget(self.current_weather)
+        self.forecast.update_weather()
+
+        self.carousel.load_slide(self.current_weather)
+        if self.add_location_form is not None:
+            self.add_location_form.dismiss()
     
     def show_add_location_form(self):
-        self.clear_widgets()
-        self.add_widget(self.add_location_form)
-
-    def show_locations(self):
-        if self.locations is None:
-            self.locations = Factory.Locations()
-            if(self.store.exists('locations')):
-                locations = self.store.get("locations")['locations']
-                self.locations.locations_list.adapter.data.extend(locations)
-
-        self.clear_widgets()
-        self.add_widget(self.locations)
-
-    def show_forecast(self, location=None):
-        self.clear_widgets()
-
-        if self.forecast is None:
-            self.forecast = Factory.Forecast()
-
-        if location is not None:
-            self.forecast.location = location
-
-        self.forecast.update_weather()
-        self.add_widget(self.forecast)
+        self.add_location_form = AddLocationForm()
+        self.add_location_form.open()
 
 class WeatherApp(App):
     def build_config(self, config):
@@ -187,7 +161,8 @@ class WeatherApp(App):
     def on_config_change(self, config, section, key, value):
         if config is self.config and key == "temp_type":
             try:
-                self.root.children[0].update_weather()
+                self.root.current_weather.update_weather()
+                self.root.forecast.update_weather()
             except AttributeError:
                 pass
 
