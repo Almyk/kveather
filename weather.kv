@@ -115,3 +115,65 @@ WeatherRoot:
             on_press: app.root.show_locations()
         Button:
             text: "Forecast"
+            on_press: app.root.show_forecast(root.location)
+<Forecast>:
+    orientation: "vertical"
+    container: entry_box
+    Label:
+        size_hint_y: 0.1
+        font_size: "30dp"
+        color: 0,0,0,1
+        bold: True
+        text: "{} ({})".format(root.location[0], root.location[1])
+        canvas:
+            Line:
+                points: self.pos[0], self.pos[1], self.width, self.pos[1]
+    BoxLayout:
+        orientation: "vertical"
+        id: entry_box
+    Button:
+        size_hint_y: None
+        height: "40dp"
+        font_size: "20dp"
+        text: "Back to current weather"
+        on_press: app.root.show_current_weather(root.location)
+
+<ForecastLabel@BoxLayout>:
+    orientation: "horizontal"
+    date: ""
+    time: ""
+    conditions_image: ""
+    description: ""
+    temp_min: None
+    temp_max: None
+    temp: None
+    canvas.before:
+        Color:
+            rgb: 0.2,0.2,0.2
+        Line:
+            points: self.pos[0], self.pos[1], self.width, self.pos[1]
+    BoxLayout:
+        orientation: "vertical"
+        Label:
+            font_name: 'NanumGothic'
+            text: u'{}'.format(root.date)
+        Label:
+            text: root.time
+    BoxLayout:
+        orientation: "vertical"
+        AsyncImage:
+            source: root.conditions_image
+        Label:
+            text: root.description
+    BoxLayout:
+        orientation: "vertical"
+        Label:
+            color: 0,0,1,1
+            text: "{}".format(root.temp_min)
+        Label:
+            color: 0,0,0,1
+            bold: True
+            text: "{}".format(root.temp)
+        Label:
+            color: 1,0,0,1
+            text: "{}".format(root.temp_max)

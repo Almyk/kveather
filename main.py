@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
 from kivy.properties import ObjectProperty, ListProperty, StringProperty, NumericProperty
@@ -5,6 +7,7 @@ from kivy.network.urlrequest import UrlRequest
 from kivy.uix.listview import ListItemButton
 from kivy.factory import Factory
 from kivy.storage.jsonstore import JsonStore
+import datetime
 
 f = open('api.key', 'r')
 key = f.readline().strip()
@@ -41,7 +44,7 @@ class LocationButton(ListItemButton):
     col = StringProperty()
 
 class CurrentWeather(BoxLayout):
-    location = ListProperty(['New York', 'US'])
+    location = ListProperty(['Seoul', 'KR'])
     conditions = StringProperty()
     conditions_image = StringProperty()
     temp = NumericProperty()
@@ -65,10 +68,47 @@ class CurrentWeather(BoxLayout):
         self.temp_max = data['main']['temp_max']
 
 
+class Forecast(BoxLayout):
+    location = ListProperty(['Seoul', 'KR'])
+    container = ObjectProperty()
+
+    def update_weather(self):
+        config = WeatherApp.get_running_app().config
+        temp_type = config.getdefault("General", "temp_type", "metric").lower()
+        weather_template = \
+            "http://api.openweathermap.org/data/2.5/forecast?q={},{}&units={}&cnt=8"+\
+            "&APPID="+key
+        weather_url = weather_template.format(
+                self.location[0], self.location[1], temp_type)
+        request = UrlRequest(weather_url, self.weather_retrieved)
+
+    def weather_retrieved(self, request, data):
+        self.container.clear_widgets()
+        cnt = 0
+        for day in data['list']:
+            if(cnt % 2):
+                cnt += 1
+                continue
+            cnt += 1
+            label = Factory.ForecastLabel()
+            label.date = datetime.datetime.fromtimestamp(day['dt']).strftime(
+                    "%a %b %d")
+            label.time = datetime.datetime.fromtimestamp(day['dt']).strftime(
+                    "%H:%M:%S")
+            label.description = day['weather'][0]['description']
+            label.conditions_image = "http://openweathermap.org/img/w/{}.png".format(
+                    day['weather'][0]['icon'])
+            label.temp_min = day['main']['temp_min']
+            label.temp_max = day['main']['temp_max']
+            label.temp = day['main']['temp']
+            self.container.add_widget(label)
+
+
 class WeatherRoot(BoxLayout):
     current_weather = ObjectProperty()
     locations = ObjectProperty()
     add_location_form = ObjectProperty()
+    forecast = ObjectProperty()
 
     def __init__(self, **kwargs):
         super(WeatherRoot, self).__init__(**kwargs)
@@ -116,6 +156,18 @@ class WeatherRoot(BoxLayout):
 
         self.clear_widgets()
         self.add_widget(self.locations)
+
+    def show_forecast(self, location=None):
+        self.clear_widgets()
+
+        if self.forecast is None:
+            self.forecast = Factory.Forecast()
+
+        if location is not None:
+            self.forecast.location = location
+
+        self.forecast.update_weather()
+        self.add_widget(self.forecast)
 
 class WeatherApp(App):
     def build_config(self, config):
