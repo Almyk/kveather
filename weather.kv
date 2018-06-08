@@ -78,8 +78,6 @@ WeatherRoot:
 
 <CurrentWeather>:
     orientation: "vertical"
-    on_right_to_left_line: app.root.show_forecast(root.location)
-    on_top_to_bottom_line: root.update_weather()
     Label:
         size_hint_y: None
         height: "50"
@@ -121,8 +119,6 @@ WeatherRoot:
 <Forecast>:
     orientation: "vertical"
     container: entry_box
-    on_left_to_right_line: app.root.show_current_weather(root.location)
-    on_top_to_bottom_line: root.update_weather()
     Label:
         size_hint_y: 0.1
         font_size: "30dp"
