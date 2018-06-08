@@ -2,9 +2,9 @@
 #: import ListAdapter kivy.adapters.listadapter.ListAdapter
 #: import hex kivy.utils.get_color_from_hex
 
-WeatherRoot:
+KveatherRoot:
 
-<WeatherRoot>:
+<KveatherRoot>:
     carousel: carousel
     locations: locations
     current_weather: current_weather
@@ -21,6 +21,7 @@ WeatherRoot:
             ActionView:
                 use_separator: True
                 ActionPrevious:
+                    app_icon: "sunshine.gif"
                     title: "Kveather"
                     with_previous: False
                 ActionOverflow:

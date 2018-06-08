@@ -54,7 +54,7 @@ class CurrentWeather(BoxLayout):
     temp_max = NumericProperty()
 
     def update_weather(self):
-        config = WeatherApp.get_running_app().config
+        config = KveatherApp.get_running_app().config
         temp_type = config.getdefault("General", "temp_type", "metric").lower()
         weather_template = \
             "http://api.openweathermap.org/data/2.5/weather?q={},{}&units={}&APPID="+key
@@ -75,7 +75,7 @@ class Forecast(BoxLayout):
     container = ObjectProperty()
 
     def update_weather(self):
-        config = WeatherApp.get_running_app().config
+        config = KveatherApp.get_running_app().config
         temp_type = config.getdefault("General", "temp_type", "metric").lower()
         weather_template = \
             "http://api.openweathermap.org/data/2.5/forecast?q={},{}&units={}&cnt=8"+\
@@ -106,14 +106,14 @@ class Forecast(BoxLayout):
             self.container.add_widget(label)
 
 
-class WeatherRoot(BoxLayout):
+class KveatherRoot(BoxLayout):
     current_weather = ObjectProperty()
     locations = ObjectProperty()
     add_location_form = ObjectProperty()
     forecast = ObjectProperty()
 
     def __init__(self, **kwargs):
-        super(WeatherRoot, self).__init__(**kwargs)
+        super(KveatherRoot, self).__init__(**kwargs)
         self.store = JsonStore("weather_store.json")
         if self.store.exists('locations'):
             locations = self.store.get('locations')
@@ -143,7 +143,7 @@ class WeatherRoot(BoxLayout):
         self.add_location_form = AddLocationForm()
         self.add_location_form.open()
 
-class WeatherApp(App):
+class KveatherApp(App):
     def build_config(self, config):
         config.setdefaults('General', {'temp_type': "Metric"})
 
@@ -167,4 +167,4 @@ class WeatherApp(App):
                 pass
 
 if __name__ == '__main__':
-    WeatherApp().run()
+    KveatherApp().run()
