@@ -155,10 +155,9 @@ WeatherRoot:
     BoxLayout:
         orientation: "vertical"
         Label:
+            color: 0,0,0,1
             font_name: 'NanumGothic'
-            text: u'{}'.format(root.date)
-        Label:
-            text: root.time
+            text: u'{}\n{}'.format(root.date, root.time)
     BoxLayout:
         orientation: "vertical"
         AsyncImage:

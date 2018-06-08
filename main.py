@@ -84,7 +84,7 @@ class Forecast(BoxLayout):
 
     def weather_retrieved(self, request, data):
         self.container.clear_widgets()
-        cnt = 0
+        cnt = 1
         for day in data['list']:
             if(cnt % 2):
                 cnt += 1
