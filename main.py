@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+__version__ = "0.1"
 
 from kivy.app import App
 from kivy.config import Config, ConfigParser
@@ -15,6 +16,7 @@ import datetime
 f = open('api.key', 'r')
 key = f.readline().strip()
 f.close()
+
 
 def locations_args_converter(index, data_item):
     col = '#2980b9'
