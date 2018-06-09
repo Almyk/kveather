@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from kivy.app import App
+from kivy.config import Config, ConfigParser
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.modalview import ModalView
 from kivy.properties import ObjectProperty, ListProperty, StringProperty, NumericProperty
@@ -44,6 +45,9 @@ class AddLocationForm(ModalView):
 class LocationButton(ListItemButton):
     location = ListProperty()
     col = StringProperty()
+
+class LocationListButton(LocationButton):
+    pass
 
 class CurrentWeather(BoxLayout):
     location = ListProperty(['Seoul', 'KR'])
@@ -114,11 +118,15 @@ class KveatherRoot(BoxLayout):
 
     def __init__(self, **kwargs):
         super(KveatherRoot, self).__init__(**kwargs)
+        config = KveatherApp.get_running_app().config
         self.store = JsonStore("weather_store.json")
         if self.store.exists('locations'):
             locations = self.store.get('locations')
             self.locations.locations_list.adapter.data.extend(locations['locations'])
-            current_location = locations["current_location"]
+            start_location = config.getdefault("General", "start_loc", "Seoul KR")
+            current_location = list(start_location.split(" "))
+            if (len(current_location) != 2):
+                current_location = locations["current_location"]
             self.show_current_weather(current_location)
         else:
             Clock.schedule_once(lambda dt: self.show_add_location_form())
@@ -143,9 +151,19 @@ class KveatherRoot(BoxLayout):
         self.add_location_form = AddLocationForm()
         self.add_location_form.open()
 
+    def del_sel(self, location):
+        print("deletan")
+        store_locations = self.store.get('locations')
+        if location in store_locations['locations']:
+            print("found {}".format(location))
+            self.locations.locations_list.adapter.data.remove(location)
+            self.store.put("locations",
+                    locations=list(self.locations.locations_list.adapter.data),
+                    current_location=location)
+
 class KveatherApp(App):
     def build_config(self, config):
-        config.setdefaults('General', {'temp_type': "Metric"})
+        config.setdefaults('General', {'temp_type': "Metric", 'start_loc': "Seoul KR"})
 
     def build_settings(self, settings):
         settings.add_json_panel("Weather Settings", self.config, data="""
@@ -155,6 +173,11 @@ class KveatherApp(App):
                     "section": "General",
                     "key": "temp_type",
                     "options": ["Metric", "Imperial"]
+                },
+                {"type": "string",
+                    "title": "Start Location",
+                    "section": "General",
+                    "key": "start_loc"
                 }
             ]"""
             )

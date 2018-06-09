@@ -67,9 +67,9 @@ KveatherRoot:
                 text: "Search"
                 size_hint_x: 25
                 on_press: root.search_location()
-            Button:
-                text: "Current Location"
-                size_hint_x: 25
+            #Button:
+                #text: "Current Location"
+                #size_hint_x: 25
         ListView:
             id: search_results_list
             adapter:
@@ -91,7 +91,7 @@ KveatherRoot:
         adapter:
             ListAdapter(
             data=[],
-            cls=main.LocationButton,
+            cls=main.LocationListButton,
             args_converter=main.locations_args_converter)
 
 <LocationButton>:
@@ -99,7 +99,24 @@ KveatherRoot:
     height: "40dp"
     size_hint_y: None
     deselected_color: hex(self.col)
+    selected_color: hex('#d35400')
     on_press: app.root.show_current_weather(self.location)
+
+<LocationListButton>:
+    ListItemButton:
+        canvas.before:
+            Color:
+                rgba: [1,0,0,1]
+            Rectangle:
+                pos: root.pos
+                size: [self.width, root.height]
+        pos: root.pos
+        size_hint_y: None
+        size_hint_x: None
+        height: root.height
+        width: "50dp"
+        text: "del"
+        on_press: app.root.del_sel(root.location)
 
 <CurrentWeather>:
     orientation: "vertical"
