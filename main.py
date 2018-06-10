@@ -120,15 +120,12 @@ class KveatherRoot(BoxLayout):
 
     def __init__(self, **kwargs):
         super(KveatherRoot, self).__init__(**kwargs)
-        config = KveatherApp.get_running_app().config
+        #config = KveatherApp.get_running_app().config
         self.store = JsonStore("weather_store.json")
         if self.store.exists('locations'):
             locations = self.store.get('locations')
             self.locations.locations_list.adapter.data.extend(locations['locations'])
-            start_location = config.getdefault("General", "start_loc", "Seoul KR")
-            current_location = list(start_location.split(" "))
-            if (len(current_location) != 2):
-                current_location = locations["current_location"]
+            current_location = self.store.get('current_location')['current_location']
             self.show_current_weather(current_location)
         else:
             Clock.schedule_once(lambda dt: self.show_add_location_form())
@@ -137,9 +134,9 @@ class KveatherRoot(BoxLayout):
         if location not in self.locations.locations_list.adapter.data:
             self.locations.locations_list.adapter.data.append(location)
             self.store.put("locations",
-                    locations=list(self.locations.locations_list.adapter.data),
-                    current_location=location)
+                    locations=list(self.locations.locations_list.adapter.data))
 
+        self.store.put('current_location', current_location=location)
         self.current_weather.location = location
         self.forecast.location = location
         self.current_weather.update_weather()
@@ -160,8 +157,7 @@ class KveatherRoot(BoxLayout):
             print("found {}".format(location))
             self.locations.locations_list.adapter.data.remove(location)
             self.store.put("locations",
-                    locations=list(self.locations.locations_list.adapter.data),
-                    current_location=location)
+                    locations=list(self.locations.locations_list.adapter.data))
 
 class KveatherApp(App):
     def build_config(self, config):
